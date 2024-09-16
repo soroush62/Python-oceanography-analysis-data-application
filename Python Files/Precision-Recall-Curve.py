@@ -41,14 +41,14 @@ preprocessor = ColumnTransformer(
 # Define the models
 models = {
     "Logistic Regression": LogisticRegression(max_iter=1000),
-    "Random Forest": RandomForestClassifier(n_jobs=-1),
-    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
-    "LightGBM": LGBMClassifier(),
+    "Random Forest": RandomForestClassifier(n_jobs=-1,class_weight='balanced'),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss',class_weight='balanced'),
+    "LightGBM": LGBMClassifier(class_weight='balanced'),
     "CatBoost": CatBoostClassifier(verbose=0)
 }
 
 # Train/test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
 # Create a Dashboard
 dashboard = lc.Dashboard(columns=3, rows=2, theme=lc.Themes.Dark)
@@ -114,6 +114,7 @@ voting_clf = VotingClassifier(estimators=[
 
 # Add Precision-Recall curve for ensemble classifier
 add_pr_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
+print(y.value_counts())
 
 # Open the dashboard
 dashboard.open()
