@@ -127,3 +127,4 @@ def add_ensemble_feature_importance_to_dashboard(dashboard, model_name, ensemble
 add_ensemble_feature_importance_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
 
 dashboard.open()
+

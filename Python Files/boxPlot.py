@@ -1,6 +1,6 @@
-# import lightningchart as lc
 # import pandas as pd
 # import numpy as np
+# import lightningchart as lc
 
 # with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
 #     mylicensekey = f.read().strip()
@@ -10,58 +10,57 @@
 # data = pd.read_csv(file_path)
 
 # columns = ['temperature', 'windspeed', 'sigheight', 'humidity', 'feelslike', 'swellheight']
-# box_plot_data = [data[column].tolist() for column in columns]
 
-# color_map = {
-#     'temperature': lc.Color(255, 235, 205),  # Light Coral
-#     'windspeed': lc.Color(240, 230, 140),  # Khaki
-#     'sigheight': lc.Color(255, 218, 185),  # Peach Puff
-#     'humidity': lc.Color(255, 239, 213),  # Papaya Whip
-#     'feelslike': lc.Color(255, 250, 205),  # Lemon Chiffon
-#     'swellheight': lc.Color(255, 245, 238)  # Seashell
-# }
+# clean_data = {}
+# outliers_data = {}
 
-# dashboard = lc.Dashboard(
-#     rows=2,
-#     columns=3,
-#     theme=lc.Themes.Dark
-# )
-
-# def add_box_plot_to_chart(chart, column_data, column_name, column_index):
-#     q1 = np.percentile(column_data, 25)
-#     q3 = np.percentile(column_data, 75)
-#     median = np.median(column_data)
-#     min_val = np.min(column_data)
-#     max_val = np.max(column_data)
+# for column in columns:
+#     column_data = data[column].dropna().tolist()
+#     q1 = np.percentile(column_data, 25) 
+#     q3 = np.percentile(column_data, 75) 
+#     iqr = q3 - q1 
+#     lower_bound = q1 - 1.5 * iqr 
+#     upper_bound = q3 + 1.5 * iqr  
     
-#     series = chart.add_box_series()
-#     series.add(
-#         start=column_index - 0.4,
-#         end=column_index + 0.4,
-#         median=float(median),
-#         lower_quartile=float(q1),
-#         upper_quartile=float(q3),
-#         lower_extreme=float(min_val),
-#         upper_extreme=float(max_val)
-#     )
-#     series.set_name(column_name)
+#     outliers = [x for x in column_data if x < lower_bound or x > upper_bound]
+#     non_outliers = [x for x in column_data if lower_bound <= x <= upper_bound]
+    
+#     outliers_data[column] = outliers
+#     clean_data[column] = non_outliers
+# print(outliers_data)
+# chart = lc.BoxPlot(
+#     data=clean_data,
+#     theme=lc.Themes.Dark,  
+#     title='Sea Metrics Distribution (Excluding Outliers)',
+#     xlabel='Metric',
+#     ylabel='Values'
+# )
+# chart.set_series_background_color(lc.Color(0, 255, 255))
+# x_coordinates = {column: idx for idx, column in enumerate(columns)}
 
-# for i, (label, values) in enumerate(zip(columns, box_plot_data)):
-#     row_index = i // 3
-#     col_index = i % 3
-#     chart = dashboard.ChartXY(
-#         column_index=col_index,
-#         row_index=row_index,
-#         title=label
+# cat_i =0
+# for column, y_values in outliers_data.items():
+#     series = chart.add_point_series(
+#         sizes=True,
+#         rotations=True,
+#         lookup_values=True
 #     )
-#     add_box_plot_to_chart(chart, values, label, i)
-#     chart.set_series_background_color(color_map[label])
-#     x_axis = chart.get_default_x_axis()
-#     x_axis.set_title('Category')
-#     y_axis = chart.get_default_y_axis()
-#     y_axis.set_title('Values')
+#     series.append_samples(
+#         x_values=[0.5 + cat_i] * len(y_values),  
+#         y_values=y_values,
+#         sizes=[10] * len(y_values) 
+#     )
+#     series.set_individual_point_color_enabled()
+#     series.set_point_color(lc.Color('red'))  
+#     series.set_point_shape("triangle") 
+#     cat_i += 2
 
-# dashboard.open()
+# chart.set_cursor_mode("show-nearest")
+
+# chart.open()
+
+
+
 
 
 
@@ -78,50 +77,56 @@ data = pd.read_csv(file_path)
 
 columns = ['temperature', 'windspeed', 'sigheight', 'humidity', 'feelslike', 'swellheight']
 
-clean_data = {}
-outliers_data = {}
+dataset=[]
+x_values_outlier=[]
+y_values_outlier=[]
 
-for column in columns:
-    column_data = data[column].dropna().tolist()
-    q1 = np.percentile(column_data, 25) 
-    q3 = np.percentile(column_data, 75) 
-    iqr = q3 - q1 
-    lower_bound = q1 - 1.5 * iqr 
-    upper_bound = q3 + 1.5 * iqr  
-    
-    outliers = [x for x in column_data if x < lower_bound or x > upper_bound]
-    non_outliers = [x for x in column_data if lower_bound <= x <= upper_bound]
-    
-    outliers_data[column] = outliers
-    clean_data[column] = non_outliers
-
-chart = lc.BoxPlot(
-    data=clean_data,
-    theme=lc.Themes.Dark,  
-    title='Sea Metrics Distribution (Excluding Outliers)',
-    xlabel='Metric',
-    ylabel='Values'
+chart = lc.ChartXY(
+    theme=lc.Themes.Dark,
+    title='Box Series'
 )
 chart.set_series_background_color(lc.Color(0, 255, 255))
-x_coordinates = {column: idx for idx, column in enumerate(columns)}
+for i,column in enumerate(columns):
+    column_data = data[column].dropna().tolist()
+    start=(i * 2) + 1 
+    end=start + 1
+    lowerQuartile = float(np.percentile(column_data, 25)) 
+    upperQuartile = float(np.percentile(column_data, 75)) 
+    median = float(np.median(column_data))
+    lowerExtreme = float(np.min(column_data))
+    upperExtreme = float(np.max(column_data))  
+    # print(f'{column}: {lowerQuartile, upperQuartile, median, lowerExtreme, upperExtreme}')       
+    dic={'start':start,'end':end,'lowerQuartile':lowerQuartile,'upperQuartile':upperQuartile,'median':median,'lowerExtreme':lowerExtreme,'upperExtreme':upperExtreme}
+    dataset.append(dic)
+    iqr = upperQuartile - lowerQuartile
+    lower_bound = lowerQuartile - 1.5 * iqr
+    upper_bound = upperQuartile + 1.5 * iqr
+    outliers = [y for y in column_data if y < lower_bound or y > upper_bound]
 
-for column, y_values in outliers_data.items():
-    x_value = x_coordinates[column]
-    series = chart.add_point_series(
+    for outlier in outliers:
+        x_values_outlier.append(start + 0.5) 
+        y_values_outlier.append(outlier)
+
+# print(dataset)
+# print(y_values_outlier)
+series = chart.add_box_series()
+series.add_multiple(dataset)
+
+
+series = chart.add_point_series(
         sizes=True,
         rotations=True,
         lookup_values=True
     )
-    series.append_samples(
-        x_values=[x_value] * len(y_values),  
-        y_values=y_values,
-        sizes=[10] * len(y_values),  
-        lookup_values=[1] * len(y_values)  
-    )
-    series.set_individual_point_color_enabled()
-    series.set_point_color(lc.Color('red'))  
-    series.set_point_shape("triangle") 
-
-chart.set_cursor_mode("show-nearest")
+series.set_point_color(lc.Color('red'))
+series.set_point_shape("triangle") 
+series.append_samples(
+    x_values=x_values_outlier,  
+    y_values=y_values_outlier,
+    sizes=[10] * len(y_values_outlier)
+)
 
 chart.open()
+
+
+

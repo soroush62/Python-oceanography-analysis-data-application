@@ -5,9 +5,8 @@ with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', '
     mylicensekey = f.read().strip()
 lc.set_license(mylicensekey)
 
-file_path = '../Dataset/hour_forecast.csv'
+file_path = 'Dataset/hour_forecast.csv'
 hour_forecast_data = pd.read_csv(file_path)
-
 
 grouped_hour_data = hour_forecast_data.groupby('time').agg({
     'windspeed': 'mean',
@@ -17,7 +16,7 @@ grouped_hour_data = hour_forecast_data.groupby('time').agg({
 grouped_hour_data['time_in_milliseconds'] = grouped_hour_data['time']/100*3600*1000
 
 chart = lc.ChartXY(
-    theme=lc.Themes.White,
+    theme=lc.Themes.Dark,
     title='Wind Speed and Wave Height Over Time'
 )
 
