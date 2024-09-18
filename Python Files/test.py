@@ -192,66 +192,56 @@
 
 
 
+import numpy as np
 import pandas as pd
 import lightningchart as lc
-import numpy as np
 
-# Load your license key
 with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
     mylicensekey = f.read().strip()
 lc.set_license(mylicensekey)
 
-# Load the tide data
-tide_path = 'Dataset/tide.csv'
-tide_data = pd.read_csv(tide_path)
-
-beach_path = 'Dataset/beach.csv'
-beach_data = pd.read_csv(beach_path)
-
 day_forecast_path = 'Dataset/day_forecast.csv'
-day_forecast_data = pd.read_csv(day_forecast_path)
+hour_forecast_path = 'Dataset/hour_forecast.csv'
 
-# Merge tide data with beach and day_forecast to get beach names and dates
-merged_tide = pd.merge(tide_data, day_forecast_data, on='iddayforecast')
-merged_tide = pd.merge(merged_tide, beach_data, on='idbeach')
-print(merged_tide)
-# Convert the 'time' column to datetime for better plotting
-merged_tide['time'] = pd.to_datetime(merged_tide['time'])
+day_forecast = pd.read_csv(day_forecast_path)
+hour_forecast = pd.read_csv(hour_forecast_path)
 
-# Create a pivot table for tide height over time for each beach
-pivot_tide = merged_tide.pivot_table(
-    index='time', columns='name', values='height', aggfunc='mean'
-)
-print(pivot_tide)
-# Fill any missing values
-pivot_tide.ffill(inplace=True)
+merged_data = pd.merge(day_forecast, hour_forecast[['iddayforecast', 'sigheight']], on='iddayforecast')
 
-# Prepare data for StackedAreaChart
-stacked_area_data = [pivot_tide[col].values.tolist() for col in pivot_tide.columns]
-time_timestamps = pivot_tide.index.astype(np.int64) // 10**9  # Convert to Unix timestamps (seconds)
+moon_phase_data = merged_data.groupby('moon_phase').agg({
+    'moon_illumination': 'mean',
+    'sigheight': 'mean'
+}).reset_index()
 
-# Create the stacked area chart
-chart = lc.StackedAreaChart(
-    theme=lc.Themes.Dark,
-    title='Tide Levels Over Time Across Beaches',
-    xlabel='Time',
-    ylabel='Tide Height (m)'
+moon_phases = moon_phase_data['moon_phase'].tolist()
+illumination_values = moon_phase_data['moon_illumination'].tolist()
+wave_height_values = moon_phase_data['sigheight'].tolist()
+
+min_wave = min(wave_height_values)
+max_wave = max(wave_height_values)
+scaled_wave_height_values = [(value - min_wave) / (max_wave - min_wave) * 20 for value in wave_height_values]
+
+chart = lc.SpiderChart(
+    theme=lc.Themes.White,
+    title='Moon Phase vs Wave Height and Moon Illumination'
 )
 
-# Set up the X-axis for timestamps
-x_axis = chart.get_default_x_axis()
-x_axis.set_interval(min(time_timestamps), max(time_timestamps))
+for moon_phase in moon_phases:
+    chart.add_axis(moon_phase)
 
-# Add each beach's tide data as a stacked area
-for beach_data in stacked_area_data:
-    chart.add([beach_data])
+series_illumination = chart.add_series()
+series_illumination.set_name('Moon Illumination')
+series_illumination.add_points([
+    {'axis': moon_phase, 'value': value} for moon_phase, value in zip(moon_phases, illumination_values)
+])
 
-# Customize colors for each beach
-beach_colors = [
-    lc.Color('blue'), lc.Color('green'), lc.Color('orange'),
-    lc.Color('red'), lc.Color('purple'), lc.Color('pink'),
-    lc.Color('yellow')
-]
+series_wave_height = chart.add_series()
+series_wave_height.set_name('Wave Height (Scaled)')
+series_wave_height.add_points([
+    {'axis': moon_phase, 'value': value} for moon_phase, value in zip(moon_phases, scaled_wave_height_values)
+])
 
-# # Open the chart in live mode
+legend = chart.add_legend()
+legend.add(data=series_illumination).add(data=series_wave_height)
+
 chart.open()
