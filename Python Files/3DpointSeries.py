@@ -185,7 +185,7 @@ scatter_series = chart.add_point_series(
 )
 
 scatter_series.set_point_shape('sphere')
-scatter_series.set_point_size(4.0)
+scatter_series.set_point_size(8.0)
 
 scatter_series.set_palette_point_colors(
     steps=[
