@@ -555,7 +555,7 @@ dashboard.open()
 
 ## Real-Time 3D Surface Plot: 
 
-In this visualization, first a machine learning model (such as a Random Forest Regressor) was trained using historical oceanographic data. The model was fed key features like temperature, wind speed, wind direction, humidity and pressure to predict significant wave height (sigheight). After training the model, randomly generated values were introduced to simulate real-time weather conditions, such as varying temperatures and wind speeds. These values were used to predict the wave height over time. The 3D surface plot below showcases the predicted significant wave height over time.
+In this visualization, first a machine learning model (Random Forest Regressor) was trained using historical oceanographic data. The model was fed key features like temperature, wind speed, wind direction, humidity and pressure to predict significant wave height (sigheight). After training the model, randomly generated values were introduced to simulate real-time weather conditions, such as varying temperatures and wind speeds. These values were used to predict the wave height over time. The 3D surface plot below showcases the predicted significant wave height over time.
 
 Script Summary: 
 
