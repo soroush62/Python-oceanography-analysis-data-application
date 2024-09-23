@@ -209,7 +209,7 @@ chart.open()
 
 ![](Images/Moon-Phase-vs-Wave-Height-and-Moon-Illuminationn.png)
 
-## Tide Levels Over Time Across Beaches**:
+## Tide Levels Over Time Across Beaches:
 
 This stacked area chart tracks tide levels at different beaches over time. It clearly shows the cyclic nature of tides, with regular peaks and troughs. Beaches like Santinho and Mole show significant fluctuations, which are crucial for understanding tidal patterns and predicting sea level changes.
 
@@ -245,7 +245,7 @@ chart.add_legend(data=chart).open()
 
 ![](Images/Tide-Levels-Over-Time-Across-Beaches.png)
 
-## Box Plot of Sea Metrics**: 
+## Box Plot of Sea Metrics: 
 
 This box plot compares the distributions of critical ocean metrics like temperature, wind speed, and humidity, excluding outliers. For example, the swell height plot shows most of the values concentrated in a narrow range, with a few higher values indicating potential extreme sea conditions.
 
@@ -285,7 +285,7 @@ chart.open()
    ```
 ![](Images/Sea-Metrics-Distribution.png)
 
-## Pair Plot**: 
+## Pair Plot: 
 
 The pair plot matrix explores relationships between various oceanographic features like temperature, wind speed, and swell height. The scatter plots indicate potential correlations, such as wind speed vs. swell height, which may help predict wave conditions based on wind metrics. Density plots on the diagonal provide a distribution of each feature.
 
@@ -336,7 +336,7 @@ dashboard.open()
    ```
 ![](Images/PairPlot.png)
 
-## Histograms of Key Features**: 
+## Histograms of Key Features: 
 
 The histograms provide a distribution of essential metrics such as temperature, wind speed, swell height, humidity, and pressure. For example, the histogram of swell height shows the most frequent range, helping identify common sea conditions. The distribution of wind speed can indicate the prevailing wind conditions during the observation period, which may correlate with swell size or direction.
 
@@ -387,7 +387,7 @@ dashboard.open()
    ```
 ![](Images/Histogram-of-features.png)
 
-## Feature Importance Analysis**: 
+## Feature Importance Analysis: 
 
 These charts showcase the importance of different oceanographic features like swell height, wind speed, and water temperature as determined by several machine learning models (e.g., Random Forest, XGBoost, LightGBM). For instance, swell height emerges as one of the most significant factors across models like Random Forest and XGBoost. This insight is crucial for understanding which variables are the most influential in predicting ocean conditions.
 
@@ -442,7 +442,7 @@ dashboard.open()
    ```
 ![](Images/Feature-importance.png)
 
-## Precision-Recall Curves**: 
+## Precision-Recall Curves: 
 
 These charts depict the precision-recall performance of different machine learning models. High AUC scores for models like Random Forest, XGBoost, and LightGBM suggest that these models can predict oceanographic conditions with high accuracy.
 
@@ -499,7 +499,7 @@ dashboard.open()
    ```
 ![](Images/Precision-Recall-Curve.png)
 
-## ROC Curve Comparisons**: 
+## ROC Curve Comparisons: 
 
 ROC curves for various models (e.g., Logistic Regression, Random Forest, XGBoost) demonstrate the trade-off between true positive and false positive rates. Models like XGBoost and Random Forest achieve a perfect AUC score of 1.00, indicating their effectiveness in predicting ocean conditions.
 
@@ -553,7 +553,7 @@ dashboard.open()
    ```
 ![](ROC-Curve!.png)
 
-## Real-Time 3D Surface Plot**: 
+## Real-Time 3D Surface Plot: 
 
 This 3D surface plot visualizes predicted significant wave height over time. The dynamic plot allows for the monitoring of wave height changes, offering insights into how wave patterns evolve throughout the day, providing critical information for marine operations and forecasting.
 
@@ -591,9 +591,9 @@ dashboard.open(live=True)
 update_dashboard()
    ```
 
-![](Real-time-3DSurface.gif)
+![](Images/Real-time-3DSurface.gif)
 
-## Real-Time Heatmap**:
+## Real-Time Heatmap:
 
 This heatmap shows the predicted wave heights across different geographical locations (latitude and longitude) in real-time. It helps visualize wave intensity in different regions, allowing users to assess areas with potentially hazardous wave conditions.
 
@@ -632,7 +632,7 @@ def update_dashboard():
 dashboard.open(live=True)
 update_dashboard()
    ```
-![](Real-Time-Heatmap.gif)
+![](Images/Real-Time-Heatmap.gif)
 
 ## Conclusion
 
