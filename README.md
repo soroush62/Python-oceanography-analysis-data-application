@@ -555,7 +555,7 @@ dashboard.open()
 
 ## Real-Time 3D Surface Plot: 
 
-This 3D surface plot visualizes predicted significant wave height over time. The dynamic plot allows for the monitoring of wave height changes, offering insights into how wave patterns evolve throughout the day, providing critical information for marine operations and forecasting.
+In this visualization, first a machine learning model (such as a Random Forest Regressor) was trained using historical oceanographic data. The model was fed key features like temperature, wind speed, wind direction, humidity and pressure to predict significant wave height (sigheight). After training the model, randomly generated values were introduced to simulate real-time weather conditions, such as varying temperatures and wind speeds. These values were used to predict the wave height over time. The 3D surface plot below showcases the predicted significant wave height over time.
 
 Script Summary: 
 
@@ -566,7 +566,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 
 data = pd.read_csv('Dataset/hour_forecast.csv')
-X, y = data[['temperature', 'windspeed']], data['sigheight']
+X, y = data[['temperature', 'windspeed', 'winddirdegree', 'humidity', 'pressure']], data['sigheight']
 encoded_wind = pd.get_dummies(np.random.choice(['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], len(data)))
 X = pd.concat([X, encoded_wind], axis=1)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -593,7 +593,31 @@ update_dashboard()
 
 ![](Images/Real-time-3DSurface.gif)
 
-## Real-Time Heatmap:
+
+### Dashboard with Temperature, Wind Direction, Windspeed Gauges, and Sigheight Prediction
+
+This section provides an overview of the dashboard used for real-time monitoring of key oceanographic variables like **Temperature**, **Wind Direction**, **Windspeed**, and **Sigheight** (significant wave height).
+
+#### Top Left Gauge (Temperature)
+- Displays the current **temperature** in Celsius, with a real-time value of **18.90°C**.
+- The color-coded gauge ranges from **0°C to 50°C**, with blue indicating colder temperatures and red representing extreme heat.
+- This gauge helps monitor how **air temperature** fluctuates, which can directly influence **sea conditions**.
+
+#### Top Middle Radar Chart (Wind Direction)
+- Shows the **wind direction** in a radar-style plot, indicating the real-time wind direction.
+- **Wind direction** is essential for predicting **wave patterns** and understanding how wind influences sea conditions. It helps establish the connection between wind direction and **wave height**.
+
+#### Top Right Gauge (Windspeed)
+- Displays the current **windspeed** in meters per second (**m/s**).
+- Like the temperature gauge, it is color-coded, with ranges starting from 0 m/s to 50 m/s. Green represents moderate wind speeds, while red indicates dangerous wind speeds.
+- Understanding wind speed is essential for predicting wave height, as higher wind speeds often correlate with more significant wave heights.
+
+#### Bottom Chart (Predicted Sigheight Over Time)
+- A **3D surface plot** that tracks the predicted **significant wave height (sigheight)** over time.
+- This dynamic chart provides real-time insights into how **sigheight** evolves based on inputs like **temperature**, **wind speed**, and **wind direction**.
+- This chart is valuable for forecasting marine conditions, especially for maritime operations and coastal monitoring, where knowing future wave heights is essential for safety.
+
+#### Real-Time Heatmap:
 
 This heatmap shows the predicted wave heights across different geographical locations (latitude and longitude) in real-time. It helps visualize wave intensity in different regions, allowing users to assess areas with potentially hazardous wave conditions.
 
@@ -633,6 +657,19 @@ dashboard.open(live=True)
 update_dashboard()
    ```
 ![](Images/Real-Time-Heatmap.gif)
+
+### Oceanographic Data Visualization Dashboard
+
+#### 1. Average Feature Values Over Time (Top Chart)
+- This line chart presents the average values of several key oceanographic and atmospheric features—temperature, windspeed, humidity, and pressure—over time. Each variable is represented by a separate line, allowing for a comparison of how these metrics vary across the time series.
+- The Y-axis is split into stacked sections, one for each feature, allowing for easier comparison and clarity in viewing trends.
+- **Temperature** (in yellow) stays relatively stable, fluctuating between **15°C and 25°C**.
+- **Windspeed** (in orange) shows variability, indicating changes in **wind intensity** during the recorded period.
+- **Humidity** (in brown) remains consistent, hovering between **50%–80%**, while **pressure** (in light pink) experiences more subtle fluctuations, mostly between **1015 and 1025 hPa**.
+
+#### 2. Predicted Wave Height Heatmap (Bottom Chart)
+- This heatmap visualizes predicted wave heights (or significant wave height, sigheight) across geographical regions, based on **latitude** and **longitude**. The color intensity represents the magnitude of the predicted wave heights.•	This heatmap visualizes predicted wave heights (or significant wave height, sigheight) across geographical regions, based on latitude and longitude. The color intensity represents the magnitude of the predicted wave heights.
+- Blue indicates lower wave heights, while red represents higher values. In this chart, most areas are colored in deep blue.
 
 ## Conclusion
 
