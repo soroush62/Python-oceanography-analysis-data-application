@@ -11,9 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
-    mylicensekey = f.read().strip()
-lc.set_license(mylicensekey)
+lc.set_license(open('../license-key').read())
 
 file_path = 'Dataset/hour_forecast.csv'  
 data = pd.read_csv(file_path)
@@ -76,7 +74,6 @@ def add_feature_importance_to_dashboard(dashboard, model_name, model, column_ind
     )
     chart.set_title(f'{model_name} Feature Importances')
 
-    # Prepare data for the bar char
     bar_data = [{'category': row['Feature'], 'value': row['Importance']} for _, row in importance_df.iterrows()]
     chart.set_data(bar_data)
 
@@ -127,4 +124,3 @@ def add_ensemble_feature_importance_to_dashboard(dashboard, model_name, ensemble
 add_ensemble_feature_importance_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
 
 dashboard.open()
-

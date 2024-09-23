@@ -12,9 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
-    mylicensekey = f.read().strip()
-lc.set_license(mylicensekey)
+lc.set_license(open('../license-key').read())
 
 file_path = 'Dataset/hour_forecast.csv'  
 data = pd.read_csv(file_path)

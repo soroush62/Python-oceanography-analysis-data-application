@@ -2,9 +2,7 @@ import numpy as np
 import pandas as pd
 import lightningchart as lc
 
-with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
-    mylicensekey = f.read().strip()
-lc.set_license(mylicensekey)
+lc.set_license(open('../license-key').read())
 
 day_forecast_path = 'Dataset/day_forecast.csv'
 hour_forecast_path = 'Dataset/hour_forecast.csv'
@@ -54,3 +52,4 @@ legend = chart.add_legend()
 legend.add(data=series_illumination).add(data=series_wave_height)
 
 chart.open()
+

@@ -2,9 +2,7 @@ import lightningchart as lc
 import pandas as pd
 import numpy as np
 
-with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
-    mylicensekey = f.read().strip()
-lc.set_license(mylicensekey)
+lc.set_license(open('../license-key').read())
 
 beach_path = 'Dataset/beach.csv'
 hour_forecast_path = 'Dataset/hour_forecast.csv'
@@ -31,10 +29,8 @@ temp_max = temp_wind_data['temperature']['max'].tolist()
 wind_min = temp_wind_data['windspeed']['min'].tolist()
 wind_max = temp_wind_data['windspeed']['max'].tolist()
 
-# Create an Area Range Chart in LightningChart
 chart = lc.ChartXY(title="Temperature vs. Windspeed Correlation (Range over Time)", theme=lc.Themes.Dark)
 
-# Create an Area Range Series for Temperature
 temp_series = chart.add_area_range_series()
 temp_series.set_name('Temperature Range (Min to Max)')
 temp_series.add_arrays_high_low(high=temp_max, low=temp_min, start=0, step=1)
@@ -54,3 +50,5 @@ legend=chart.add_legend(title='Variables')
 legend.add(temp_series).add(wind_series)
 
 chart.open()
+
+
