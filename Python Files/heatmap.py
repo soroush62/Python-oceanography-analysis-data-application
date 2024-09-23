@@ -8,10 +8,10 @@ with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', '
     mylicensekey = f.read().strip()
 lc.set_license(mylicensekey)
 
-beach_path = '../Dataset/beach.csv'
-hour_forecast_path = '../Dataset/hour_forecast.csv'
-spot_path = '../Dataset/spot.csv'
-day_forecast_path = '../Dataset/day_forecast.csv'
+beach_path = 'Dataset/beach.csv'
+hour_forecast_path = 'Dataset/hour_forecast.csv'
+spot_path = 'Dataset/spot.csv'
+day_forecast_path = 'Dataset/day_forecast.csv'
 
 beach = pd.read_csv(beach_path)
 hour_forecast = pd.read_csv(hour_forecast_path)
@@ -37,7 +37,7 @@ grid_wave_height[np.isnan(grid_wave_height)] = np.nanmean(z)
 
 chart = lc.ChartXY(
     title='Heatmap of Wave Height by Longitude and Latitude',
-    theme=lc.Themes.Light
+    theme=lc.Themes.Dark
 )
 
 heatmap = chart.add_heatmap_grid_series(
@@ -68,5 +68,6 @@ heatmap.set_palette_colors(
     look_up_property='value',
     interpolate=True
 )
+chart.add_legend(data=heatmap, title="Wave Height")
 
 chart.open()

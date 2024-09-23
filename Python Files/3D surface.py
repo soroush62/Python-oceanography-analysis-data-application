@@ -249,19 +249,19 @@
 import numpy as np
 import pandas as pd
 import lightningchart as lc
-from scipy.interpolate import griddata
 
 # Set up the license
 with open('D:/Computer Aplication/WorkPlacement/Projects/shared_variable.txt', 'r') as f:
     mylicensekey = f.read().strip()
 lc.set_license(mylicensekey)
 
-# Load datasets
+
 beach_path = 'Dataset/beach.csv'
 hour_forecast_path = 'Dataset/hour_forecast.csv'
 spot_path = 'Dataset/spot.csv'
 day_forecast_path = 'Dataset/day_forecast.csv'
 
+# Reading CSV files
 beach = pd.read_csv(beach_path)
 hour_forecast = pd.read_csv(hour_forecast_path)
 spot = pd.read_csv(spot_path)
@@ -278,22 +278,36 @@ final_data = pd.merge(merged_data, forecast_data[['iddayforecast', 'sigheight', 
 
 # Clean data: remove any NaN or zeros in sigheight
 final_data = final_data.dropna(subset=['sigheight'])
-final_data = final_data[final_data['sigheight'] > 0]  # Ensure we remove zero sigheight values
 
 # Prepare data for the 3D surface plot
 latitude = final_data['latitude'].values
 longitude = final_data['longitude'].values
 sigheight = final_data['sigheight'].values
 
-# Create a grid for latitudes and longitudes (increased resolution)
-grid_lat, grid_lon = np.mgrid[min(latitude):max(latitude):100j, min(longitude):max(longitude):100j]
+print(final_data[['latitude', 'longitude', 'sigheight']].head())
+print(final_data['sigheight'].describe())  # This should give you an idea of the data range
 
-# Interpolate sigheight over the grid
-sigheight_grid = griddata((latitude, longitude), sigheight, (grid_lat, grid_lon), method='linear')
 
-# Debug: Check sigheight_grid after interpolation
-print('SigHeight Grid Max:', np.nanmax(sigheight_grid))
-print('SigHeight Grid Min:', np.nanmin(sigheight_grid))
+# Get grid size for latitudes and longitudes
+unique_latitudes = np.unique(latitude)
+unique_longitudes = np.unique(longitude)
+
+grid_size_x = len(unique_latitudes)
+grid_size_y = len(unique_longitudes)
+
+# Reshape sigheight into a grid
+sigheight_grid = np.zeros((grid_size_x, grid_size_y))
+
+print('SigHeight Grid Max:', np.max(sigheight_grid))
+print('SigHeight Grid Min:', np.min(sigheight_grid))
+print('SigHeight Grid:', sigheight_grid)
+
+
+for i, lat in enumerate(unique_latitudes):
+    for j, lon in enumerate(unique_longitudes):
+        mask = (final_data['latitude'] == lat) & (final_data['longitude'] == lon)
+        if mask.any():
+            sigheight_grid[i, j] = final_data.loc[mask, 'sigheight'].mean()  # Averaging sigheight for the same lat/lon
 
 # Create 3D chart
 chart = lc.Chart3D(
@@ -303,34 +317,33 @@ chart = lc.Chart3D(
 
 # Add surface grid series
 surface_series = chart.add_surface_grid_series(
-    columns=sigheight_grid.shape[1],
-    rows=sigheight_grid.shape[0],
+    columns=grid_size_x,
+    rows=grid_size_y,
 )
 
 # Set axis ranges
-surface_series.set_start(x=min(latitude), z=min(longitude))
-surface_series.set_end(x=max(latitude), z=max(longitude))
-surface_series.set_step(x=(max(latitude)-min(latitude))/sigheight_grid.shape[0], 
-                        z=(max(longitude)-min(longitude))/sigheight_grid.shape[1])
+surface_series.set_start(x=min(unique_latitudes), z=min(unique_longitudes))
+surface_series.set_end(x=max(unique_latitudes), z=max(unique_longitudes))
+surface_series.set_step(x=1, z=1)
 
 # Set intensity interpolation
 surface_series.set_intensity_interpolation(True)
 
-# Set the height (sigheight) data, ignoring NaN values
+# Set the height (sigheight) data
 surface_series.invalidate_height_map(sigheight_grid.tolist())
 
-# Set color palette
 surface_series.set_palette_colors(
     steps=[
         {"value": 0, "color": lc.Color(0, 0, 255)},       # Blue 
         {"value": 0.25, "color": lc.Color(0, 255, 255)},  # Cyan 
         {"value": 0.5, "color": lc.Color(0, 255, 0)},     # Green 
         {"value": 1.0, "color": lc.Color(255, 255, 0)},   # Yellow 
-        {"value": 2, "color": lc.Color(255, 0, 0)}        # Red 
+        {"value": 2, "color": lc.Color(255, 0, 0)}      # Red 
     ],
     look_up_property='value',
     percentage_values=False
 )
+
 
 # Hide the wireframe for a cleaner view
 surface_series.hide_wireframe()
@@ -345,4 +358,3 @@ chart.add_legend(data=surface_series)
 
 # Open the chart
 chart.open()
-

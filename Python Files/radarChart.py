@@ -31,6 +31,8 @@ chart = lc.SpiderChart(
     theme=lc.Themes.White,
     title='Moon Phase vs Wave Height and Moon Illumination'
 )
+chart.set_axis_label_font(weight='bold',size=15)
+chart.set_nib_style(thickness=5, color=lc.Color(0, 0, 0))
 
 for moon_phase in moon_phases:
     chart.add_axis(moon_phase)
@@ -40,6 +42,7 @@ series_illumination.set_name('Moon Illumination')
 series_illumination.add_points([
     {'axis': moon_phase, 'value': value} for moon_phase, value in zip(moon_phases, illumination_values)
 ])
+
 
 series_wave_height = chart.add_series()
 series_wave_height.set_name('Wave Height (Scaled)')
