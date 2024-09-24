@@ -119,7 +119,7 @@ LightningChart provides an efficient way to visualize large datasets in real-tim
 
 ### Creating the Charts
 
-- **Wind Speed and Wave Height Over Time**:
+## Wind Speed and Wave Height Over Time**:
 
 This dual-line plot tracks wind speed and wave height over time, helping to visualize the relationship between the two variables. The results indicate that higher wind speeds often correlate with larger waves, which is essential for understanding how wind conditions affect wave dynamics.
 
@@ -143,10 +143,11 @@ chart.get_default_x_axis().set_title('Time').set_tick_strategy(strategy="Time")
 chart.get_default_y_axis().set_title('Speed/Height')
 chart.open()
    ```
+![](Images/Wind-Speed-and-Wave-Height-Over-Time.png)
 
-- **Range Plot of Temperature vs Wind Speed**:
+## Range Plot of Temperature vs Wind Speed**:
 
-The range plot visualizes the correlation between temperature and wind speed over time. This chart highlights the variability in both metrics and their potential influence on wave height and direction. Higher temperatures and wind speeds can lead to larger swell heights and more intense sea conditions.
+The range plot visualizes the correlation between temperature and wind speed over time. This chart highlights the variability in both metrics and their potential influence on wave height and direction. In maritime or environmental applications, such correlations are essential for predicting conditions like wave height or storm potential.
 
 Script Summary: 
 
@@ -173,8 +174,9 @@ chart.get_default_x_axis().set_title('Time')
 chart.get_default_y_axis().set_title('Value')
 chart.open()
    ```
+![](Images/Temperature-vs-Windspeed-Correlation.png)
 
-- **Moon Phase vs Wave Height and Moon Illumination**:
+## Moon Phase vs Wave Height and Moon Illumination**:
 
 This radar chart compares moon illumination and wave height across different moon phases. It highlights that during full moon phases, both wave height and moon illumination tend to be at their highest, suggesting a possible correlation between lunar phases and ocean conditions.
 
@@ -205,7 +207,9 @@ chart.add_series().set_name('Wave Height (Scaled)').add_points([{'axis': phase, 
 chart.open()
    ```
 
-- **Tide Levels Over Time Across Beaches**:
+![](Images/Moon-Phase-vs-Wave-Height-and-Moon-Illuminationn.png)
+
+## Tide Levels Over Time Across Beaches:
 
 This stacked area chart tracks tide levels at different beaches over time. It clearly shows the cyclic nature of tides, with regular peaks and troughs. Beaches like Santinho and Mole show significant fluctuations, which are crucial for understanding tidal patterns and predicting sea level changes.
 
@@ -239,7 +243,9 @@ chart.get_default_y_axis().set_title('Tide Height (m)')
 chart.add_legend(data=chart).open()
    ```
 
-- **Box Plot of Sea Metrics**: 
+![](Images/Tide-Levels-Over-Time-Across-Beaches.png)
+
+## Box Plot of Sea Metrics: 
 
 This box plot compares the distributions of critical ocean metrics like temperature, wind speed, and humidity, excluding outliers. For example, the swell height plot shows most of the values concentrated in a narrow range, with a few higher values indicating potential extreme sea conditions.
 
@@ -277,8 +283,9 @@ chart.add_point_series(sizes=True, rotations=True).set_point_color(lc.Color('red
 
 chart.open()
    ```
+![](Images/Sea-Metrics-Distribution.png)
 
-- **Pair Plot**: 
+## Pair Plot: 
 
 The pair plot matrix explores relationships between various oceanographic features like temperature, wind speed, and swell height. The scatter plots indicate potential correlations, such as wind speed vs. swell height, which may help predict wave conditions based on wind metrics. Density plots on the diagonal provide a distribution of each feature.
 
@@ -327,8 +334,9 @@ for row_idx, y_col in enumerate(features):
 
 dashboard.open()
    ```
+![](Images/PairPlot.png)
 
-- **Histograms of Key Features**: 
+## Histograms of Key Features: 
 
 The histograms provide a distribution of essential metrics such as temperature, wind speed, swell height, humidity, and pressure. For example, the histogram of swell height shows the most frequent range, helping identify common sea conditions. The distribution of wind speed can indicate the prevailing wind conditions during the observation period, which may correlate with swell size or direction.
 
@@ -377,8 +385,9 @@ for row_idx, y_col in enumerate(features):
 
 dashboard.open()
    ```
+![](Images/Histogram-of-features.png)
 
-- **Feature Importance Analysis**: 
+## Feature Importance Analysis: 
 
 These charts showcase the importance of different oceanographic features like swell height, wind speed, and water temperature as determined by several machine learning models (e.g., Random Forest, XGBoost, LightGBM). For instance, swell height emerges as one of the most significant factors across models like Random Forest and XGBoost. This insight is crucial for understanding which variables are the most influential in predicting ocean conditions.
 
@@ -431,8 +440,9 @@ add_feature_importance(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row
 dashboard.open()
 
    ```
+![](Images/Feature-importance.png)
 
-- **Precision-Recall Curves**: 
+## Precision-Recall Curves: 
 
 These charts depict the precision-recall performance of different machine learning models. High AUC scores for models like Random Forest, XGBoost, and LightGBM suggest that these models can predict oceanographic conditions with high accuracy.
 
@@ -487,8 +497,9 @@ dashboard.open()
 
 
    ```
+![](Images/Precision-Recall-Curve.png)
 
-- **ROC Curve Comparisons**: 
+## ROC Curve Comparisons: 
 
 ROC curves for various models (e.g., Logistic Regression, Random Forest, XGBoost) demonstrate the trade-off between true positive and false positive rates. Models like XGBoost and Random Forest achieve a perfect AUC score of 1.00, indicating their effectiveness in predicting ocean conditions.
 
@@ -540,10 +551,11 @@ add_roc_curve(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row_idx=1)
 dashboard.open()
 
    ```
+![](ROC-Curve!.png)
 
-- **Real-Time 3D Surface Plot**: 
+## Real-Time 3D Surface Plot: 
 
-This 3D surface plot visualizes predicted significant wave height over time. The dynamic plot allows for the monitoring of wave height changes, offering insights into how wave patterns evolve throughout the day, providing critical information for marine operations and forecasting.
+In this visualization, first a machine learning model (Random Forest Regressor) was trained using historical oceanographic data. The model was fed key features like temperature, wind speed, wind direction, humidity and pressure to predict significant wave height (sigheight). After training the model, randomly generated values were introduced to simulate real-time weather conditions, such as varying temperatures and wind speeds. These values were used to predict the wave height over time. The 3D surface plot below showcases the predicted significant wave height over time.
 
 Script Summary: 
 
@@ -554,7 +566,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 
 data = pd.read_csv('Dataset/hour_forecast.csv')
-X, y = data[['temperature', 'windspeed']], data['sigheight']
+X, y = data[['temperature', 'windspeed', 'winddirdegree', 'humidity', 'pressure']], data['sigheight']
 encoded_wind = pd.get_dummies(np.random.choice(['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], len(data)))
 X = pd.concat([X, encoded_wind], axis=1)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -577,11 +589,35 @@ def update_dashboard():
 
 dashboard.open(live=True)
 update_dashboard()
-
-
    ```
 
-- **Real-Time Heatmap**:
+![](Images/Real-time-3DSurface.gif)
+
+
+### Dashboard with Temperature, Wind Direction, Windspeed Gauges, and Sigheight Prediction
+
+This section provides an overview of the dashboard used for real-time monitoring of key oceanographic variables like **Temperature**, **Wind Direction**, **Windspeed**, and **Sigheight** (significant wave height).
+
+#### Top Left Gauge (Temperature)
+- Displays the current **temperature** in Celsius, with a real-time value of **18.90°C**.
+- The color-coded gauge ranges from **0°C to 50°C**, with blue indicating colder temperatures and red representing extreme heat.
+- This gauge helps monitor how **air temperature** fluctuates, which can directly influence **sea conditions**.
+
+#### Top Middle Radar Chart (Wind Direction)
+- Shows the **wind direction** in a radar-style plot, indicating the real-time wind direction.
+- **Wind direction** is essential for predicting **wave patterns** and understanding how wind influences sea conditions. It helps establish the connection between wind direction and **wave height**.
+
+#### Top Right Gauge (Windspeed)
+- Displays the current **windspeed** in meters per second (**m/s**).
+- Like the temperature gauge, it is color-coded, with ranges starting from 0 m/s to 50 m/s. Green represents moderate wind speeds, while red indicates dangerous wind speeds.
+- Understanding wind speed is essential for predicting wave height, as higher wind speeds often correlate with more significant wave heights.
+
+#### Bottom Chart (Predicted Sigheight Over Time)
+- A **3D surface plot** that tracks the predicted **significant wave height (sigheight)** over time.
+- This dynamic chart provides real-time insights into how **sigheight** evolves based on inputs like **temperature**, **wind speed**, and **wind direction**.
+- This chart is valuable for forecasting marine conditions, especially for maritime operations and coastal monitoring, where knowing future wave heights is essential for safety.
+
+#### Real-Time Heatmap:
 
 This heatmap shows the predicted wave heights across different geographical locations (latitude and longitude) in real-time. It helps visualize wave intensity in different regions, allowing users to assess areas with potentially hazardous wave conditions.
 
@@ -620,11 +656,48 @@ def update_dashboard():
 dashboard.open(live=True)
 update_dashboard()
    ```
+![](Images/Real-Time-Heatmap.gif)
 
+### Oceanographic Data Visualization Dashboard
+
+#### 1. Average Feature Values Over Time (Top Chart)
+- This line chart presents the average values of several key oceanographic and atmospheric features—temperature, windspeed, humidity, and pressure—over time. Each variable is represented by a separate line, allowing for a comparison of how these metrics vary across the time series.
+- The Y-axis is split into stacked sections, one for each feature, allowing for easier comparison and clarity in viewing trends.
+- **Temperature** (in yellow) stays relatively stable, fluctuating between **15°C and 25°C**.
+- **Windspeed** (in orange) shows variability, indicating changes in **wind intensity** during the recorded period.
+- **Humidity** (in brown) remains consistent, hovering between **50%–80%**, while **pressure** (in light pink) experiences more subtle fluctuations, mostly between **1015 and 1025 hPa**.
+
+#### 2. Predicted Wave Height Heatmap (Bottom Chart)
+- This heatmap visualizes predicted wave heights (or significant wave height, sigheight) across geographical regions, based on **latitude** and **longitude**. The color intensity represents the magnitude of the predicted wave heights.•	This heatmap visualizes predicted wave heights (or significant wave height, sigheight) across geographical regions, based on latitude and longitude. The color intensity represents the magnitude of the predicted wave heights.
+- Blue indicates lower wave heights, while red represents higher values. In this chart, most areas are colored in deep blue.
 
 ## Conclusion
 
-This project showcased the use of Python and **LightningChart** for visualizing oceanographic data. By creating dynamic, high-performance visualizations, it made it easier to understand complex ocean data, predict wave and wind conditions, and support decision-making in marine environments. **LightningChart** provides high-speed rendering, flexibility, and real-time data handling capabilities.
+This project showcased the use of Python and **LightningChart** for visualizing oceanographic data. By creating dynamic, high-performance visualizations, the project made it easier to understand complex ocean data, predict wave and wind conditions, and support decision-making in marine environments. The flexibility and speed of LightningChart make it a valuable tool for real-time data analysis and marine operations.
+
+## Benefits of Using LightningChart Python
+
+LightningChart Python offers several key benefits for visualizing data in solar power modeling, making it an excellent tool for this project:
+
+- **High Performance**
+
+LightningChart is highly optimized for rendering large datasets quickly, which is crucial when analyzing extensive oceanographic data such as swell height, wind speed, and water temperature over time. This performance ensures that even with complex, real-time data, such as in the dynamic heatmaps and surface charts used in this article, visualizations are rendered smoothly without performance degradation.
+
+- **Comprehensive Visualization Capabilities**
+
+The platform supports a wide range of chart types, including 3D surface plots, heatmaps, line charts, and more. These versatile options allow for a thorough exploration of oceanographic metrics, as demonstrated in the article's visualizations, where complex relationships between wind direction, wave height, and other sea metrics are analyzed from multiple perspectives.
+
+- **Customization and Flexibility**
+
+LightningChart offers extensive customization, allowing users to tailor visualizations for specific needs. This flexibility is reflected in how the project utilizes customized axis labels, color palettes, and legends, enhancing the clarity and effectiveness of visual data presentation for ocean metrics like swell direction and wind speed. Such features help highlight key insights in environmental studies.
+
+- **Real-time Data Handling**
+
+The software's robust support for real-time data visualization is especially valuable for marine monitoring applications, such as tracking real-time changes in swell height and tidal changes. This is particularly beneficial for applications requiring dynamic updates, such as the gauges and heatmaps presented in the article, where live oceanographic data is continually visualized.
+
+- **Interactive 3D Visualizations**
+
+Interactive 3D capabilities add depth to the analysis, enabling users to uncover insights that may not be immediately apparent in 2D charts. In oceanographic analysis, this feature enhances the exploration of variables such as wave height and temperature correlations, providing a deeper understanding of marine environments.
 
 ## References
 
