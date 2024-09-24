@@ -147,7 +147,7 @@ chart.open()
 
 ## Range Plot of Temperature vs Wind Speed**:
 
-The range plot visualizes the correlation between temperature and wind speed over time. This chart highlights the variability in both metrics and their potential influence on wave height and direction. Higher temperatures and wind speeds can lead to larger swell heights and more intense sea conditions.
+The range plot visualizes the correlation between temperature and wind speed over time. This chart highlights the variability in both metrics and their potential influence on wave height and direction. In maritime or environmental applications, such correlations are essential for predicting conditions like wave height or storm potential.
 
 Script Summary: 
 
