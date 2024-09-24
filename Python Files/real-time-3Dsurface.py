@@ -12,7 +12,7 @@ lc.set_license(open('../license-key').read())
 file_path = 'Dataset/hour_forecast.csv'
 data = pd.read_csv(file_path)
 
-X = data[['temperature', 'windspeed']]
+X = data[['temperature', 'windspeed', 'winddirdegree', 'humidity', 'pressure']]
 y = data['sigheight']
 
 wind_directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -87,33 +87,30 @@ surface.set_wireframe_stroke(1, color=lc.Color(0, 128, 255))
 def generate_random_weather_data():
     wind_direction_values = [0] * len(wind_directions)
     selected_direction = random.randint(0, len(wind_directions) - 1)
-    wind_direction_values[selected_direction] = random.uniform(0, 100) 
+    wind_direction_values[selected_direction] = random.uniform(0, 100)
 
     return {
         'temperature': np.random.uniform(X['temperature'].min(), X['temperature'].max()),
         'windspeed': np.random.uniform(X['windspeed'].min(), X['windspeed'].max()),
-        'wind_direction': wind_direction_values 
+        'wind_direction': wind_direction_values,
+        'winddirdegree': np.random.uniform(X['winddirdegree'].min(), X['winddirdegree'].max()),
+        'humidity': np.random.uniform(X['humidity'].min(), X['humidity'].max()),
+        'pressure': np.random.uniform(X['pressure'].min(), X['pressure'].max())
     }
 
 def update_dashboard():
     time_values = []
     start_time = time.time()
     i = 0
-    x = 0
-    
-    while i < 1000:  
+
+    while i < 1000:
         random_weather = generate_random_weather_data()
         random_weather_df = pd.DataFrame([random_weather])
 
         wind_direction_encoded = pd.DataFrame([random_weather['wind_direction']], columns=encoder.get_feature_names_out(['wind_direction']))
-        random_weather_df = pd.concat([random_weather_df[['temperature', 'windspeed']], wind_direction_encoded], axis=1)
+        random_weather_df = pd.concat([random_weather_df[['temperature', 'windspeed', 'winddirdegree', 'humidity', 'pressure']], wind_direction_encoded], axis=1)
 
         predicted_sigheight = model.predict(random_weather_df)[0]
-
-        current_time = time.time() - start_time
-        time_values.append(current_time)
-        i += 1
-        x = x + (random.random() * 2) - 1
 
         temperature_gauge.set_value(random_weather['temperature'])
         windspeed_gauge.set_value(random_weather['windspeed'])
@@ -125,8 +122,8 @@ def update_dashboard():
 
         print(f"Predicted Sigheight: {predicted_sigheight}")
 
-        grid = np.full((1, 100), predicted_sigheight) 
-        surface.add_values(grid.tolist())  
+        grid = np.full((1, 100), predicted_sigheight)
+        surface.add_values(grid.tolist())
 
         time.sleep(2)
 

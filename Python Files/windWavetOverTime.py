@@ -20,7 +20,7 @@ chart = lc.ChartXY(
 
 wind_speed_series = chart.add_line_series()
 wind_speed_series.set_name('Wind Speed')
-wind_speed_series.set_line_color(lc.Color(0, 0, 255))  # Blue
+wind_speed_series.set_line_color(lc.Color(255, 0, 255))  # Blue
 wind_speed_series.set_line_thickness(2)
 
 wave_height_series = chart.add_line_series()
