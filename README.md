@@ -343,45 +343,24 @@ The histograms provide a distribution of essential metrics such as temperature, 
 Script Summary: 
 
 ```python
-import pandas as pd
-import numpy as np
-import lightningchart as lc
-from scipy.stats import gaussian_kde
+dashboard = lc.Dashboard(rows=3, columns=4, theme=lc.Themes.Dark)
 
-hour_forecast_data = pd.read_csv('Dataset/hour_forecast.csv')
-day_forecast_data = pd.read_csv('Dataset/day_forecast.csv')
-merged_data = pd.merge(hour_forecast_data, day_forecast_data[['iddayforecast', 'idbeach']], on='iddayforecast')
+def create_histogram(column_data, column_name, row_index, col_index):
+    counts, bin_edges = np.histogram(column_data, bins=10)
+    bar_data = [{'category': f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}', 'value': int(counts[i])} for i in range(len(counts))]
+    chart = dashboard.BarChart(column_index=col_index, row_index=row_index)
+    chart.set_title(f'Histogram of {column_name}')
+    chart.set_bars_effect(True)
+    chart.set_data(bar_data)
+    chart.set_palette_colors(
+        steps=[{'value': 0, 'color': lc.Color('blue')}, {'value': 0.5, 'color': lc.Color('yellow')}, {'value': 1, 'color': lc.Color('red')}],
+        percentage_values=True
+    )
 
-features = ['temperature', 'windspeed', 'sigheight', 'humidity', 'preciptation']
-unique_identifiers = merged_data['idbeach'].unique()
-
-dashboard = lc.Dashboard(rows=len(features), columns=len(features), theme=lc.Themes.Dark)
-
-def create_density_chart(title, values_dict, col_idx, row_idx):
-    chart = dashboard.ChartXY(col_idx, row_idx)
-    for key, values in values_dict.items():
-        density = gaussian_kde(np.array(values))
-        chart.add_area_series().add(
-            np.linspace(min(values), max(values), 100).tolist(),
-            density(np.linspace(min(values), max(values), 100)).tolist()
-        ).set_name(f'Density - Beach {key}')
-    chart.get_default_x_axis().set_title('Value').get_default_y_axis().set_title('Density')
-
-def create_scatter_chart(title, data_dict, x_label, y_label, col_idx, row_idx):
-    chart = dashboard.ChartXY(col_idx, row_idx)
-    for key, (x, y) in data_dict.items():
-        chart.add_point_series().add(x, y).set_point_size(3).set_point_color(lc.Color(102, 255, 102))
-    chart.get_default_x_axis().set_title(x_label).get_default_y_axis().set_title(y_label)
-
-for row_idx, y_col in enumerate(features):
-    for col_idx, x_col in enumerate(features):
-        if row_idx == col_idx:
-            create_density_chart(f'Density of {x_col}', {key: merged_data[merged_data[
-                'idbeach'] == key][x_col].tolist() for key in unique_identifiers}, col_idx, row_idx)
-        else:
-            create_scatter_chart(f'{x_col} vs {y_col}', {key: (merged_data[merged_data[
-                'idbeach'] == key][x_col].tolist(), merged_data[merged_data[
-                    'idbeach'] == key][y_col].tolist()) for key in unique_identifiers}, x_col, y_col, col_idx, row_idx)
+for i, column in enumerate(columns):
+    row_index = i // 4
+    col_index = i % 4
+    create_histogram(data[column].dropna(), column, row_index, col_index)
 
 dashboard.open()
    ```
@@ -394,51 +373,41 @@ These charts showcase the importance of different oceanographic features like sw
 Script Summary: 
 
 ```python
-import lightningchart as lc
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+dashboard = lc.Dashboard(rows=2, columns=3, theme=lc.Themes.Dark)
 
-data = pd.read_csv('Dataset/hour_forecast.csv')
-features = ['idhourforecast', 'iddayforecast', 'time', 'temperature', 'windspeed', 'preciptation', 
-            'humidity', 'pressure', 'cloundover', 'swellheight', 'watertemp']
-data['sigheight_category'] = pd.cut(data['sigheight'], bins=[0, 0.5, 1.0, 1.5], labels=[0, 1, 2])
-X_train, X_test, y_train, y_test = train_test_split(data[features], data['sigheight_category'], test_size=0.3, random_state=42)
-preprocessor = ColumnTransformer([('num', StandardScaler(), features)])
 models = {
     'Logistic Regression': LogisticRegression(max_iter=10000),
     'Random Forest': RandomForestClassifier(),
     'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
     'LightGBM': LGBMClassifier(),
-    'CatBoost': CatBoostClassifier(verbose=0)}
+    'CatBoost': CatBoostClassifier(verbose=0)
+}
 
-dashboard = lc.Dashboard(rows=2, columns=3, theme=lc.Themes.Dark)
 def add_feature_importance(dashboard, model_name, model, col_idx, row_idx):
-    pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
+    pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', model)])
     pipeline.fit(X_train, y_train)
-    importances = model.feature_importances_ if hasattr(model, 'feature_importances_') else model.coef_[0]
-    importance_df = pd.DataFrame({'Feature': features, 'Importance': importances}).sort_values(by='Importance', ascending=False)
+    
+    importances = getattr(model, 'feature_importances_', getattr(model, 'coef_', np.zeros(len(features))))
     chart = dashboard.BarChart(col_idx, row_idx).set_title(f'{model_name} Feature Importances')
-    chart.set_data([{'category': row['Feature'], 'value': row['Importance']} for _, row in importance_df.iterrows()])
+    chart.set_data([{'category': f, 'value': imp} for f, imp in zip(features, importances)])
 
-for i, (model_name, model) in enumerate(models.items()):
-    add_feature_importance(dashboard, model_name, model, col_idx=i % 3, row_idx=i // 3)
+for i, (name, model) in enumerate(models.items()):
+    add_feature_importance(dashboard, name, model, col_idx=i % 3, row_idx=i // 3)
 
-voting_clf = VotingClassifier(estimators=[('lr', LogisticRegression(max_iter=10000)), ('rf', RandomForestClassifier()), (
-    'xgb', XGBClassifier(use_label_encoder=False, eval_metric='logloss')), ('lgbm', LGBMClassifier()), (
-        'cat', CatBoostClassifier(verbose=0))], voting='soft')
-add_feature_importance(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row_idx=1)
+voting_clf = VotingClassifier(estimators=[('lr', models['Logistic Regression']), ('rf', models['Random Forest']), 
+    ('xgb', models['XGBoost']), ('lgbm', models['LightGBM']), ('cat', models['CatBoost'])], voting='soft')
+
+def add_ensemble_feature_importance(dashboard, model_name, ensemble, col_idx, row_idx):
+    pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', ensemble)])
+    pipeline.fit(X_train, y_train)
+    
+    importances = sum(getattr(est, 'feature_importances_', getattr(est, 'coef_', 0)) for est in ensemble.estimators_) / len(ensemble.estimators_)
+    chart = dashboard.BarChart(col_idx, row_idx).set_title(f'{model_name} Feature Importances')
+    chart.set_data([{'category': f, 'value': imp} for f, imp in zip(features, importances)])
+
+add_ensemble_feature_importance(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row_idx=1)
 
 dashboard.open()
-
    ```
 ![](Images/Feature-importance.png)
 
@@ -449,53 +418,40 @@ These charts depict the precision-recall performance of different machine learni
 Script Summary: 
 
 ```python
-import lightningchart as lc
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import precision_recall_curve, auc
-
-data = pd.read_csv('Dataset/hour_forecast.csv')
-features = ['idhourforecast', 'iddayforecast', 'temperature', 'windspeed', 'humidity', 'pressure', 'cloundover', 'watertemp']
-data['sigheight_category'] = pd.cut(data['sigheight'], bins=[0, 0.5, 1.5], labels=[0, 1])
-X_train, X_test, y_train, y_test = train_test_split(data[features], data['sigheight_category'], test_size=0.3, random_state=42)
-preprocessor = ColumnTransformer([('num', StandardScaler(), features)])
-
 models = {
-    'Logistic Regression': LogisticRegression(max_iter=1000),
-    'Random Forest': RandomForestClassifier(n_jobs=-1, class_weight='balanced'),
-    'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
-    'LightGBM': LGBMClassifier(),
-    'CatBoost': CatBoostClassifier(verbose=0)}
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "Random Forest": RandomForestClassifier(n_jobs=-1, class_weight='balanced'),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', class_weight='balanced'),
+    "LightGBM": LGBMClassifier(class_weight='balanced'),
+    "CatBoost": CatBoostClassifier(verbose=0)
+}
+
 dashboard = lc.Dashboard(columns=3, rows=2, theme=lc.Themes.Dark)
 
-def add_pr_curve_to_dashboard(dashboard, model_name, model, col_idx, row_idx):    
+def add_pr_curve_to_dashboard(dashboard, model_name, model, column_index, row_index):
     pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', model)])
     pipeline.fit(X_train, y_train)
     y_scores = pipeline.predict_proba(X_test)[:, 1]
-    precision, recall, _ = precision_recall_curve(y_test, y_scores)
-    pr_auc = auc(recall, precision)    
-    chart = dashboard.ChartXY(col_idx, row_idx).set_title(f'{model_name} PR Curve (AUC = {pr_auc:.2f})')
-    chart.add_line_series().add(recall.tolist(), precision.tolist())
+    precision, recall, thresholds = precision_recall_curve(y_test, y_scores)
+    pr_auc = auc(recall, precision)
 
-for i, (model_name, model) in enumerate(models.items()):
-    add_pr_curve_to_dashboard(dashboard, model_name, model, col_idx=i % 3, row_idx=i // 3)
+    chart = dashboard.ChartXY(column_index=column_index, row_index=row_index)
+    chart.set_title(f'{model_name} Precision-Recall Curve (AUC = {pr_auc:.2f})')
+    pr_series = chart.add_line_series().add(recall.tolist(), precision.tolist()).set_name('Precision-Recall')
+    point_series = chart.add_point_series().set_name('Threshold Points')
+    for j, t in enumerate(thresholds):
+        point_series.add(recall[j], precision[j])
 
-voting_clf = VotingClassifier(estimators=[('lr', LogisticRegression()), ('rf', RandomForestClassifier()), (
-    'xgb', XGBClassifier(use_label_encoder=False))], voting='soft')
-add_pr_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row_idx=1)
+for i, (name, model) in enumerate(models.items()):
+    add_pr_curve_to_dashboard(dashboard, name, model, column_index=i % 3, row_index=i // 3)
+
+voting_clf = VotingClassifier(estimators=[
+    ('lr', models['Logistic Regression']), ('rf', models['Random Forest']), 
+    ('xgb', models['XGBoost']), ('lgbm', models['LightGBM']), ('cat', models['CatBoost'])], voting='soft')
+
+add_pr_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
 
 dashboard.open()
-
-
    ```
 ![](Images/Precision-Recall-Curve.png)
 
@@ -506,50 +462,39 @@ ROC curves for various models (e.g., Logistic Regression, Random Forest, XGBoost
 Script Summary: 
 
 ```python
-import lightningchart as lc
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve, auc
-from sklearn.preprocessing import StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=10000),
+    'Random Forest': RandomForestClassifier(),
+    'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
+    'LightGBM': LGBMClassifier(),
+    'CatBoost': CatBoostClassifier(verbose=0)
+}
 
-data = pd.read_csv('Dataset/hour_forecast.csv')
-features = ['idhourforecast', 'iddayforecast', 'temperature', 'windspeed', 'humidity', 'pressure', 'watertemp']
-target = 'sigheight'
-data = data.dropna(subset=[target])
-y = pd.cut(data[target], bins=[data[target].min(), (data[target].min() + data[target].max()) / 2, data[target].max()], labels=[0, 1])
-X_train, X_test, y_train, y_test = train_test_split(data[features], y, test_size=0.3, random_state=42)
-preprocessor = ColumnTransformer([('num', StandardScaler(), features)])
-models = {'Logistic Regression': LogisticRegression(), 'Random Forest': RandomForestClassifier(),
-           'XGBoost': XGBClassifier(), 'LightGBM': LGBMClassifier(), 'CatBoost': CatBoostClassifier()}
-dashboard = lc.Dashboard(rows=2, columns=3)
-def add_roc_curve(dashboard, model_name, model, col_idx, row_idx):
-    pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', model)])
+dashboard = lc.Dashboard(rows=2, columns=3, theme=lc.Themes.Dark)
+
+def add_roc_curve_to_dashboard(dashboard, model_name, model, column_index, row_index):
+    pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
     pipeline.fit(X_train, y_train)
+    
     y_scores = pipeline.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_scores)
     roc_auc = auc(fpr, tpr)
 
-    chart = dashboard.ChartXY(col_idx, row_idx)
-    chart.set_title(f'{model_name} ROC Curve (AUC={roc_auc:.2f})')
+    chart = dashboard.ChartXY(column_index=column_index, row_index=row_index)
+    chart.set_title(f'{model_name} ROC Curve (AUC = {roc_auc:.2f})')
     chart.add_line_series().add(fpr.tolist(), tpr.tolist()).set_name('ROC Curve')
-    chart.add_line_series().add([0, 1], [0, 1]).set_name('Chance').set_dashed()
-
+    chart.add_line_series().add([0, 1], [0, 1]).set_name('Chance').set_dashed(pattern='Dashed')
+    
 for i, (model_name, model) in enumerate(models.items()):
-    add_roc_curve(dashboard, model_name, model, col_idx=i % 3, row_idx=i // 3)
+    add_roc_curve_to_dashboard(dashboard, model_name, model, column_index=i % 3, row_index=i // 3)
 
-voting_clf = VotingClassifier(estimators=[('lr', LogisticRegression()), ('rf', RandomForestClassifier()), ('xgb', XGBClassifier())], voting='soft')
-add_roc_curve(dashboard, 'Ensemble Methods', voting_clf, col_idx=2, row_idx=1)
+voting_clf = VotingClassifier(estimators=[
+    ('lr', models['Logistic Regression']), ('rf', models['Random Forest']), 
+    ('xgb', models['XGBoost']), ('lgbm', models['LightGBM']), ('cat', models['CatBoost'])], voting='soft')
+
+add_roc_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
 
 dashboard.open()
-
    ```
 ![](ROC-Curve!.png)
 
