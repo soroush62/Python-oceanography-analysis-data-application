@@ -119,7 +119,7 @@ LightningChart provides an efficient way to visualize large datasets in real-tim
 
 ### Creating the Charts
 
-## Wind Speed and Wave Height Over Time**:
+## Wind Speed and Wave Height Over Time:
 
 This dual-line plot tracks wind speed and wave height over time, helping to visualize the relationship between the two variables. The results indicate that higher wind speeds often correlate with larger waves, which is essential for understanding how wind conditions affect wave dynamics.
 
@@ -145,7 +145,7 @@ chart.open()
    ```
 ![](Images/Wind-Speed-and-Wave-Height-Over-Time.png)
 
-## Range Plot of Temperature vs Wind Speed**:
+## Range Plot of Temperature vs Wind Speed:
 
 The range plot visualizes the correlation between temperature and wind speed over time. This chart highlights the variability in both metrics and their potential influence on wave height and direction. In maritime or environmental applications, such correlations are essential for predicting conditions like wave height or storm potential.
 
@@ -176,7 +176,7 @@ chart.open()
    ```
 ![](Images/Temperature-vs-Windspeed-Correlation.png)
 
-## Moon Phase vs Wave Height and Moon Illumination**:
+## Moon Phase vs Wave Height and Moon Illumination:
 
 This radar chart compares moon illumination and wave height across different moon phases. It highlights that during full moon phases, both wave height and moon illumination tend to be at their highest, suggesting a possible correlation between lunar phases and ocean conditions.
 
@@ -207,7 +207,7 @@ chart.add_series().set_name('Wave Height (Scaled)').add_points([{'axis': phase, 
 chart.open()
    ```
 
-![](Images/Moon-Phase-vs-Wave-Height-and-Moon-Illuminationn.png)
+![](Images/Moon-Phase-vs-Wave-Height-and-Moon-Illumination.png)
 
 ## Tide Levels Over Time Across Beaches:
 
