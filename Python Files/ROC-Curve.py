@@ -105,3 +105,44 @@ voting_clf = VotingClassifier(estimators=[
 add_roc_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
 
 dashboard.open()
+
+
+
+
+
+
+
+
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=10000),
+    'Random Forest': RandomForestClassifier(),
+    'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
+    'LightGBM': LGBMClassifier(),
+    'CatBoost': CatBoostClassifier(verbose=0)
+}
+
+dashboard = lc.Dashboard(rows=2, columns=3, theme=lc.Themes.Dark)
+
+def add_roc_curve_to_dashboard(dashboard, model_name, model, column_index, row_index):
+    pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
+    pipeline.fit(X_train, y_train)
+    
+    y_scores = pipeline.predict_proba(X_test)[:, 1]
+    fpr, tpr, _ = roc_curve(y_test, y_scores)
+    roc_auc = auc(fpr, tpr)
+
+    chart = dashboard.ChartXY(column_index=column_index, row_index=row_index)
+    chart.set_title(f'{model_name} ROC Curve (AUC = {roc_auc:.2f})')
+    chart.add_line_series().add(fpr.tolist(), tpr.tolist()).set_name('ROC Curve')
+    chart.add_line_series().add([0, 1], [0, 1]).set_name('Chance').set_dashed(pattern='Dashed')
+    
+for i, (model_name, model) in enumerate(models.items()):
+    add_roc_curve_to_dashboard(dashboard, model_name, model, column_index=i % 3, row_index=i // 3)
+
+voting_clf = VotingClassifier(estimators=[
+    ('lr', models['Logistic Regression']), ('rf', models['Random Forest']), 
+    ('xgb', models['XGBoost']), ('lgbm', models['LightGBM']), ('cat', models['CatBoost'])], voting='soft')
+
+add_roc_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_index=2, row_index=1)
+
+dashboard.open()
