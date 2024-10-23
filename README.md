@@ -496,7 +496,7 @@ add_roc_curve_to_dashboard(dashboard, 'Ensemble Methods', voting_clf, column_ind
 
 dashboard.open()
    ```
-![](ROC-Curve!.png)
+![](Images/ROC-Curve.png)
 
 ## Real-Time 3D Surface Plot: 
 
